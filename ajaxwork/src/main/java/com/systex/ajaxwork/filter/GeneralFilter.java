@@ -32,29 +32,31 @@ public class GeneralFilter extends OncePerRequestFilter {
         HttpSession session = request.getSession(false); // 不要創建新的 session
         Object user = (session != null) ? session.getAttribute("loggedInUser") : null;
 
-        System.out.println("request.getRequestURI(): " + request.getRequestURI());
+        String uri = request.getRequestURI();
+
+        System.out.println("request.getRequestURI(): " + uri);
         System.out.println("request.getMethod(): " + request.getMethod());
 
         // 如果是登錄請求，處理登入邏輯
-        if (request.getRequestURI().endsWith("/login") && request.getMethod().equalsIgnoreCase("POST")) {
+        if (uri.endsWith("/login") && request.getMethod().equalsIgnoreCase("POST")) {
             handleLogin(request, response, session);
         }
 
         // 如果是錯誤頁面，繼續處理請求
-        if (request.getRequestURI().equals("/error")) {
+        if (uri.equals("/error")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         // 如果是 h2-console，繼續處理請求
-        if (request.getRequestURI().contains("/h2-console")) {
+        if (uri.contains("/h2-console")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         // 如果用戶未登入且請求不是登入或註冊，則重定向到登入頁面
-        if (user == null && !request.getRequestURI().endsWith("/login")
-                && !request.getRequestURI().endsWith("/register")) {
+        if (user == null && !uri.endsWith("/login")
+                && !uri.endsWith("/register")) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
