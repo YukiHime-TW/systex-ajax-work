@@ -1,0 +1,9 @@
+= Spring MVC 登入功能改為使用ajax，並將登入的功能改為在Filter中處理
+
+== 預設登入帳號密碼
+帳號: `test` +
+密碼: `test` +
+連結: http://localhost:8080/ajaxwork/login
+
+== 使用方法
+請在 STS 中使用 `Run as JavaApplication` 並執行內嵌的 Tomcat。
