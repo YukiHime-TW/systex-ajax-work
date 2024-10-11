@@ -32,7 +32,7 @@ public class LotteryService {
                     group.add(number);
                 }
             }
-            // 從小到大排序
+            // 將 group 加入 list
             list.add(group);
         }
 
