@@ -58,7 +58,7 @@ public class GeneralFilter extends OncePerRequestFilter {
         }
 
         // 如果是 h2-console，繼續處理請求
-        if (uri.endsWith("/h2-console")) {
+        if (uri.contains("/h2-console")) {
             filterChain.doFilter(request, response);
             return;
         }
