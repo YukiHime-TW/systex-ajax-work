@@ -12,71 +12,92 @@ import com.systex.ajaxwork.model.LotteryForm;
 @Service
 public class LotteryService {
 
-    private HashSet<Integer> excludeNumbers = new HashSet<>();
+    private final HashSet<Integer> excludeNumbers = new HashSet<>();
 
     public ArrayList<TreeSet<Integer>> getLottery(LotteryForm form) throws Exception {
-
-        // 先清空 excludeNumbers
+        // 清空 excludeNumbers 並驗證輸入資料
         excludeNumbers.clear();
-
-        // 驗證輸入資料
         validate(form);
 
-        ArrayList<TreeSet<Integer>> list = new ArrayList<>();
+        ArrayList<TreeSet<Integer>> lotteryGroups = new ArrayList<>();
+        generateLotteryNumbers(form, lotteryGroups);
 
+        return lotteryGroups;
+    }
+
+    private void generateLotteryNumbers(LotteryForm form, ArrayList<TreeSet<Integer>> lotteryGroups) {
         for (int i = 0; i < form.getGroupCount(); i++) {
-            TreeSet<Integer> group = new TreeSet<>();
-            while (group.size() < 6) {
-                int number = (int) (Math.random() * 49) + 1;
-                if (!group.contains(number) && !excludeNumbers.contains(number)) {
-                    group.add(number);
-                }
-            }
-            // 將 group 加入 list
-            list.add(group);
+            TreeSet<Integer> group = createLotteryGroup();
+            lotteryGroups.add(group);
         }
+    }
 
-        return list;
+    private TreeSet<Integer> createLotteryGroup() {
+        TreeSet<Integer> group = new TreeSet<>();
+        while (group.size() < 6) {
+            int number = generateRandomNumber();
+            if (isValidNumber(number, group)) {
+                group.add(number);
+            }
+        }
+        return group;
+    }
+
+    private int generateRandomNumber() {
+        return (int) (Math.random() * 49) + 1;
+    }
+
+    private boolean isValidNumber(int number, TreeSet<Integer> group) {
+        return !group.contains(number) && !excludeNumbers.contains(number);
     }
 
     // 驗證輸入資料
     public void validate(LotteryForm form) throws Exception {
+        validateGroupCount(form);
+        if (form.getExcludeNumberString() != null && !form.getExcludeNumberString().isEmpty()) {
+            validateExcludeNumbers(form);
+        }
+    }
 
-        // 1.組數必須大於0
+    private void validateGroupCount(LotteryForm form) {
         if (form.getGroupCount() <= 0) {
             throw new IllegalArgumentException("組數必須大於0");
         }
+    }
 
-        // 如果有輸入排除號碼，才執行以下驗證
-        if (form.getExcludeNumberString() != null || !form.getExcludeNumberString().isEmpty()) {
-            // 2.排除號碼必須是數字且介於1~49
-            String[] excludeNumberStrings = form.getExcludeNumberString().split(" ");
-            Set<Integer> uniqueNumbers = new HashSet<>();
+    private void validateExcludeNumbers(LotteryForm form) {
+        String[] excludeNumberStrings = form.getExcludeNumberString().split(" ");
+        Set<Integer> uniqueNumbers = new HashSet<>();
 
-            for (String excludeNumber : excludeNumberStrings) {
-                int number;
-                try {
-                    number = Integer.parseInt(excludeNumber);
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("排除號碼必須是數字");
-                }
+        for (String excludeNumber : excludeNumberStrings) {
+            int number = parseExcludeNumber(excludeNumber);
+            validateSingleExcludeNumber(number, uniqueNumbers);
+        }
 
-                if (number < 1 || number > 49) {
-                    throw new IllegalArgumentException("排除號碼必須介於1~49");
-                }
+        // 將唯一的號碼加入 excludeNumbers
+        excludeNumbers.addAll(uniqueNumbers);
 
-                if (!uniqueNumbers.add(number)) {
-                    throw new IllegalArgumentException("排除號碼必須是唯一的");
-                }
-            }
+        // 檢查排除號碼的數量
+        if (excludeNumbers.size() > 43) {
+            throw new IllegalArgumentException("排除號碼必須小於等於43個");
+        }
+    }
 
-            // 將唯一的號碼加入 excludeNumbers
-            excludeNumbers.addAll(uniqueNumbers);
+    private int parseExcludeNumber(String excludeNumber) {
+        try {
+            return Integer.parseInt(excludeNumber);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("排除號碼必須是數字");
+        }
+    }
 
-            // 3.排除號碼必須小於等於43個
-            if (excludeNumbers.size() > 43) {
-                throw new IllegalArgumentException("排除號碼必須小於等於43個");
-            }
+    private void validateSingleExcludeNumber(int number, Set<Integer> uniqueNumbers) {
+        if (number < 1 || number > 49) {
+            throw new IllegalArgumentException("排除號碼必須介於1~49");
+        }
+
+        if (!uniqueNumbers.add(number)) {
+            throw new IllegalArgumentException("排除號碼必須是唯一的");
         }
     }
 }
