@@ -6,7 +6,8 @@ public class PasswordUtil {
 
     // 使用 BCrypt 加密密碼
     public static String hashPassword(String password) {
-        return BCrypt.hashpw(password, BCrypt.gensalt());
+        String salt = BCrypt.gensalt(); // 每次生成新的鹽
+        return BCrypt.hashpw(password, salt);
     }
 
     // 驗證密碼是否匹配

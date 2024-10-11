@@ -9,6 +9,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.systex.ajaxwork.model.MemberModel;
 import com.systex.ajaxwork.service.MemberService;
+import com.systex.ajaxwork.util.PasswordUtil;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -105,7 +106,7 @@ public class GeneralFilter extends OncePerRequestFilter {
         }
 
         // 驗證密碼
-        if (member != null && member.getPassword().equals(password)) {
+        if(member != null && PasswordUtil.verifyPassword(password, member.getPassword())) {
             // 登錄成功，將用戶存入 session
             if (session == null) {
                 session = request.getSession(true); // 確保總是創建 session
@@ -117,10 +118,10 @@ public class GeneralFilter extends OncePerRequestFilter {
                 response.setStatus(HttpServletResponse.SC_OK);
                 return; // 成功響應，不需要進一步處理
             }
-
         } else {
             sendErrorResponse(request, response, "用戶名或密碼錯誤");
         }
+
     }
 
     private void handleRegister(HttpServletRequest request, HttpServletResponse response, HttpSession session)
@@ -152,7 +153,7 @@ public class GeneralFilter extends OncePerRequestFilter {
         // 創建新用戶
         member = new MemberModel();
         member.setUsername(username);
-        member.setPassword(password);
+        member.setPassword(PasswordUtil.hashPassword(password));
 
         try {
             memberService.save(member);

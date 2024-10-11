@@ -1,1 +1,0 @@
-insert into member(username, password) values('test', 'test');
