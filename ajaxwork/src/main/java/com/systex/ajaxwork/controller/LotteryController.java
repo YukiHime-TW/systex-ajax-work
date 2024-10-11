@@ -21,35 +21,26 @@ public class LotteryController {
 
     @Autowired
     private LotteryService lotteryService;
-
+    
     @GetMapping("input")
-    public ModelAndView showLotteryForm() {
-        return createModelAndView("lotteryForm", new LotteryForm());
+    public ModelAndView lotteryForm() {
+        return new ModelAndView("lotteryForm", "lotteryForm", new LotteryForm());
     }
 
     @PostMapping("lotteryGenerate")
-    public ModelAndView generateLottery(@ModelAttribute LotteryForm form, Model model) {
-        ArrayList<TreeSet<Integer>> results = generateLotteryResults(form, model);
-        if (results == null) {
-            return createModelAndView("lotteryForm", null); // 返回表單視圖
-        }
-        return createResultView(form, results);
-    }
+    public ModelAndView lotteryGenerate(@ModelAttribute LotteryForm form, Model model) {
 
-    private ArrayList<TreeSet<Integer>> generateLotteryResults(LotteryForm form, Model model) {
-        try {
-            return lotteryService.getLottery(form);
-        } catch (Exception e) {
+        ArrayList<TreeSet<Integer>> list = new ArrayList<>();
+
+        try{
+            list = lotteryService.getLottery(form);
+        }catch(Exception e){
             model.addAttribute("error", e.getMessage());
-            return null; // 發生錯誤時返回 null
+            return new ModelAndView("lotteryForm");
         }
+        
+        return new ModelAndView("lotteryResult", "lotteryForm", form)
+                    .addObject("result", list);
     }
-
-    private ModelAndView createModelAndView(String viewName, LotteryForm form) {
-        return new ModelAndView(viewName, "lotteryForm", form);
-    }
-
-    private ModelAndView createResultView(LotteryForm form, ArrayList<TreeSet<Integer>> results) {
-        return createModelAndView("lotteryResult", form).addObject("result", results);
-    }
+    
 }
