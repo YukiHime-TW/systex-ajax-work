@@ -28,6 +28,10 @@ public class GeneralFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
+        // 設置編碼
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
         // get session
         HttpSession session = request.getSession(false); // 不要創建新的 session
         Object user = (session != null) ? session.getAttribute("loggedInUser") : null;
@@ -79,6 +83,7 @@ public class GeneralFilter extends OncePerRequestFilter {
 
         // 繼續處理請求
         filterChain.doFilter(request, response);
+
     }
 
     private void handleLogin(HttpServletRequest request, HttpServletResponse response, HttpSession session)
@@ -170,7 +175,6 @@ public class GeneralFilter extends OncePerRequestFilter {
             throws IOException {
         // 如果是 AJAX 請求，返回錯誤消息
         if (isAjaxRequest(request)) {
-            response.setCharacterEncoding("utf-8"); // 設置字符集
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, message);
             request.removeAttribute("error"); // 對於 AJAX 請求，不需要設置錯誤屬性
         } else {
