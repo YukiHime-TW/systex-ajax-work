@@ -101,7 +101,7 @@ public class GeneralFilter extends OncePerRequestFilter {
         }
 
         // 驗證密碼
-        if (member != null && PasswordUtil.verifyPassword(password, member.getPassword())) {
+        if(member != null && PasswordUtil.verifyPassword(password, member.getPassword())) {
             // 登錄成功，將用戶存入 session
             if (session == null) {
                 session = request.getSession(true); // 確保總是創建 session
@@ -166,7 +166,7 @@ public class GeneralFilter extends OncePerRequestFilter {
         return "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
     }
 
-    private void sendErrorResponse(HttpServletRequest request, HttpServletResponse response, String message)
+    private void sendErrorResponse(HttpServletRequest request, HttpServletResponse response,String message)
             throws IOException {
         // 如果是 AJAX 請求，返回錯誤消息
         if (isAjaxRequest(request)) {
