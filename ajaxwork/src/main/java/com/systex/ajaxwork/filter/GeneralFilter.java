@@ -95,7 +95,7 @@ public class GeneralFilter extends OncePerRequestFilter {
             member = memberService.findByUsername(username);
         } catch (Exception e) {
             // 找不到用戶，返回錯誤信息並轉發回登入頁
-            sendErrorResponse(response, request, "找不到用戶");
+            sendErrorResponse(request, response, "找不到用戶");
             return;
         }
 
@@ -114,7 +114,7 @@ public class GeneralFilter extends OncePerRequestFilter {
             }
 
         } else {
-            sendErrorResponse(response, request, "用戶名或密碼錯誤");
+            sendErrorResponse(request, response, "用戶名或密碼錯誤");
         }
     }
 
@@ -131,7 +131,7 @@ public class GeneralFilter extends OncePerRequestFilter {
         // 檢查密碼是否一致
         if (!password.equals(confirmPassword)) {
             // 密碼不一致，返回錯誤信息
-            sendErrorResponse(response, request, "密碼不一致");
+            sendErrorResponse(request, response, "密碼不一致");
             return;
         }
 
@@ -140,7 +140,7 @@ public class GeneralFilter extends OncePerRequestFilter {
             memberService.checkIfUserExists(username);
         } catch (Exception e) {
             // 用戶名已存在，返回錯誤信息
-            sendErrorResponse(response, request, "用戶名已存在");
+            sendErrorResponse(request, response, "用戶名已存在");
             return;
         }
 
@@ -158,7 +158,7 @@ public class GeneralFilter extends OncePerRequestFilter {
 
         } catch (Exception e) {
             // 保存失敗，返回錯誤信息
-            sendErrorResponse(response, request, "註冊失敗，請重試");
+            sendErrorResponse(request, response, "註冊失敗，請重試");
         }
     }
 
@@ -166,7 +166,7 @@ public class GeneralFilter extends OncePerRequestFilter {
         return "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
     }
 
-    private void sendErrorResponse(HttpServletResponse response, HttpServletRequest request,String message)
+    private void sendErrorResponse(HttpServletRequest request, HttpServletResponse response,String message)
             throws IOException {
         // 如果是 AJAX 請求，返回錯誤消息
         if (isAjaxRequest(request)) {
@@ -177,4 +177,5 @@ public class GeneralFilter extends OncePerRequestFilter {
             request.setAttribute("error", message); // 對於非 AJAX 請求，設置錯誤屬性
         }
     }
+
 }
