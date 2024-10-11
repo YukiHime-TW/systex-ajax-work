@@ -60,17 +60,19 @@ public class GeneralFilter extends OncePerRequestFilter {
         }
 
         // 如果用戶未登入且請求不是登入或註冊，則重定向到登入頁面
-        if (user == null && !uri.endsWith("/login")
-                && !uri.endsWith("/register")) {
+        if (user == null && !uri.endsWith("/login") && !uri.endsWith("/register")) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
-        // 如果用戶已登入且請求是登入或註冊，則重定向到首頁
-        if (user != null && (uri.endsWith("/login")
-                || uri.endsWith("/register"))) {
-            response.sendRedirect(request.getContextPath() + "/index.jsp");
-            return;
+        // 如果用戶已登入
+        if (user != null) {
+
+            // 若請求是登入或註冊或沒有請求，則重定向到首頁
+            if (uri.endsWith("/login") || uri.endsWith("/register") || uri.endsWith("/")) {
+                response.sendRedirect(request.getContextPath() + "/index.jsp");
+                return;
+            }
         }
 
         System.out.println("error: " + request.getAttribute("error"));
@@ -93,7 +95,6 @@ public class GeneralFilter extends OncePerRequestFilter {
             member = memberService.findByUsername(username);
         } catch (Exception e) {
             // 找不到用戶，返回錯誤信息並轉發回登入頁
-            request.setAttribute("error", "找不到用戶");
             sendErrorResponse(response, request, "找不到用戶");
             return;
         }
@@ -102,7 +103,7 @@ public class GeneralFilter extends OncePerRequestFilter {
         if (member != null && member.getPassword().equals(password)) {
             // 登錄成功，將用戶存入 session
             if (session == null) {
-                session = request.getSession(); // 如果 session 不存在，創建一個新的
+                session = request.getSession(true); // 確保總是創建 session
             }
             session.setAttribute("loggedInUser", member);
 
@@ -113,7 +114,6 @@ public class GeneralFilter extends OncePerRequestFilter {
             }
 
         } else {
-            request.setAttribute("error", "用戶名或密碼錯誤");
             sendErrorResponse(response, request, "用戶名或密碼錯誤");
         }
     }
@@ -131,7 +131,6 @@ public class GeneralFilter extends OncePerRequestFilter {
         // 檢查密碼是否一致
         if (!password.equals(confirmPassword)) {
             // 密碼不一致，返回錯誤信息
-            request.setAttribute("error", "密碼不一致");
             sendErrorResponse(response, request, "密碼不一致");
             return;
         }
@@ -141,7 +140,6 @@ public class GeneralFilter extends OncePerRequestFilter {
             memberService.checkIfUserExists(username);
         } catch (Exception e) {
             // 用戶名已存在，返回錯誤信息
-            request.setAttribute("error", "用戶名已存在");
             sendErrorResponse(response, request, "用戶名已存在");
             return;
         }
@@ -160,23 +158,21 @@ public class GeneralFilter extends OncePerRequestFilter {
 
         } catch (Exception e) {
             // 保存失敗，返回錯誤信息
-            request.setAttribute("error", "註冊失敗，請重試");
             sendErrorResponse(response, request, "註冊失敗，請重試");
         }
     }
-
 
     private boolean isAjaxRequest(HttpServletRequest request) {
         return "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
     }
 
-    private void sendErrorResponse(HttpServletResponse response, HttpServletRequest request,
-            String message)
+    private void sendErrorResponse(HttpServletResponse response, HttpServletRequest request,String message)
             throws IOException {
         // 如果是 AJAX 請求，返回錯誤消息
         if (isAjaxRequest(request)) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // 設置錯誤狀態碼
-            response.getWriter().write(message); // 返回錯誤消息
+            response.setCharacterEncoding("utf-8");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, message);
+            request.removeAttribute("error"); // 對於 AJAX 請求，不需要設置錯誤屬性
         } else {
             request.setAttribute("error", message); // 對於非 AJAX 請求，設置錯誤屬性
         }
