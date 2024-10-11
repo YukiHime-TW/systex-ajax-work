@@ -42,14 +42,19 @@ public class GeneralFilter extends OncePerRequestFilter {
             handleLogin(request, response, session);
         }
 
+        // 如果是註冊請求，處理註冊邏輯
+        if (uri.endsWith("/register") && request.getMethod().equalsIgnoreCase("POST")) {
+            handleRegister(request, response, session);
+        }
+
         // 如果是錯誤頁面，繼續處理請求
-        if (uri.equals("/error")) {
+        if (uri.endsWith("/error")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         // 如果是 h2-console，繼續處理請求
-        if (uri.contains("/h2-console")) {
+        if (uri.endsWith("/h2-console")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -58,6 +63,13 @@ public class GeneralFilter extends OncePerRequestFilter {
         if (user == null && !uri.endsWith("/login")
                 && !uri.endsWith("/register")) {
             response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        // 如果用戶已登入且請求是登入或註冊，則重定向到首頁
+        if (user != null && (uri.endsWith("/login")
+                || uri.endsWith("/register"))) {
+            response.sendRedirect(request.getContextPath() + "/index.jsp");
             return;
         }
 
@@ -96,4 +108,43 @@ public class GeneralFilter extends OncePerRequestFilter {
             return;
         }
     }
+
+    private void handleRegister(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+        throws ServletException, IOException {
+
+    MemberModel member;
+
+    // 獲取用戶名和密碼
+    String username = request.getParameter("username");
+    String password = request.getParameter("password");
+    String confirmPassword = request.getParameter("confirmPassword");
+
+    // 檢查密碼是否一致
+    if (!password.equals(confirmPassword)) {
+        // 密碼不一致，返回錯誤信息
+        request.setAttribute("error", "密碼不一致");
+        return;
+    }
+
+    // 檢查用戶名是否已存在
+    try{
+        memberService.checkIfUserExists(username);
+    }catch(Exception e){
+        // 用戶名已存在，返回錯誤信息
+        request.setAttribute("error", "用戶名已存在");
+        return;
+    }
+
+    // 創建新用戶
+    member = new MemberModel();
+    member.setUsername(username);
+    member.setPassword(password);
+
+    try {
+        memberService.save(member);
+    } catch (Exception e) {
+        // 保存失敗，返回錯誤信息
+        request.setAttribute("error", "註冊失敗，請重試");
+    }
+}
 }
