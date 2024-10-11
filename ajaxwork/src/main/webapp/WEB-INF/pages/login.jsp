@@ -17,7 +17,7 @@
         crossorigin="anonymous"></script>
 </head>
 <body>
-    <jsp:include page="/WEB-INF/pages/navBar.jsp" />
+    <jsp:include page="/WEB-INF/pages/navBar.jsp" /> <!-- 包含導覽列 -->
     <div class="container mt-5">
         <h1 id="loginTitle" class="text-center">登入系統 (Form)</h1>
         <!-- 選擇提交方式的切換按鈕 -->

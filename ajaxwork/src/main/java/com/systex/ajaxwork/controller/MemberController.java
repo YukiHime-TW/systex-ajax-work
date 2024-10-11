@@ -23,21 +23,14 @@ public class MemberController {
 
     // 處理登入請求
     @PostMapping("/login")
-    public ModelAndView handleLogin(HttpServletRequest request, HttpSession session, Model model) {
-        
-        // 取得錯誤訊息
-        Object error = request.getAttribute("error");
-        
+    public ModelAndView handleLogin(HttpServletRequest request, HttpSession session) {
         // 如果已經登入，重定向到首頁
         if (session.getAttribute("loggedInUser") != null) {
-            return new ModelAndView("redirect:/index.jsp");
+            return redirectToHomePage();
         }
 
-        // 如果有錯誤訊息，返回登入頁面
-        model.addAttribute("error", error);
-
-        return new ModelAndView("login");
-        
+        // 取得錯誤訊息並返回登入頁面
+        return prepareLoginView(request);
     }
 
     // 顯示註冊頁面
@@ -48,25 +41,37 @@ public class MemberController {
 
     // 處理註冊請求
     @PostMapping("/register")
-    public ModelAndView handleRegister(HttpServletRequest request, HttpSession session, Model model) {
-
+    public ModelAndView handleRegister(HttpServletRequest request) {
         // 取得錯誤訊息
         Object error = request.getAttribute("error");
-        
-        model.addAttribute("error", error);
 
         // 如果有錯誤訊息，返回註冊頁面
-        if(error != null) {
-            return new ModelAndView("register", "member", new MemberModel());
+        if (error != null) {
+            return new ModelAndView("register", "member", new MemberModel()).addObject("error", error);
         }
-        
+
         return new ModelAndView("redirect:/login"); // 註冊成功後重定向到登入頁面
     }
 
     // 處理登出請求
     @GetMapping("/logout")
     public String handleLogout(HttpSession session) {
-        session.removeAttribute("loggedInUser"); // 刪除 session 中的用戶對象
+        session.invalidate(); // 刪除 session 中的用戶對象
         return "redirect:/login"; // 登出後重定向到登入頁面
+    }
+
+    // 重定向到首頁
+    private ModelAndView redirectToHomePage() {
+        return new ModelAndView("redirect:/index.jsp");
+    }
+
+    // 準備登入頁面的 ModelAndView
+    private ModelAndView prepareLoginView(HttpServletRequest request) {
+        Object error = request.getAttribute("error");
+        ModelAndView modelAndView = new ModelAndView("login");
+        if (error != null) {
+            modelAndView.addObject("error", error);
+        }
+        return modelAndView;
     }
 }
