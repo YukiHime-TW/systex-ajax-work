@@ -25,12 +25,15 @@ public class MemberController {
     @PostMapping("/login")
     public ModelAndView handleLogin(HttpServletRequest request, HttpSession session, Model model) {
         
+        // 取得錯誤訊息
         Object error = request.getAttribute("error");
         
+        // 如果已經登入，重定向到首頁
         if (session.getAttribute("loggedInUser") != null) {
             return new ModelAndView("redirect:/index.jsp");
         }
 
+        // 如果有錯誤訊息，返回登入頁面
         model.addAttribute("error", error);
 
         return new ModelAndView("login");
@@ -47,10 +50,12 @@ public class MemberController {
     @PostMapping("/register")
     public ModelAndView handleRegister(HttpServletRequest request, HttpSession session, Model model) {
 
+        // 取得錯誤訊息
         Object error = request.getAttribute("error");
         
         model.addAttribute("error", error);
 
+        // 如果有錯誤訊息，返回註冊頁面
         if(error != null) {
             return new ModelAndView("register");
         }
