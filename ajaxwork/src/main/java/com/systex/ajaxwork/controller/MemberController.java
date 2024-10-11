@@ -57,7 +57,7 @@ public class MemberController {
 
         // 如果有錯誤訊息，返回註冊頁面
         if(error != null) {
-            return new ModelAndView("register");
+            return new ModelAndView("register", "member", new MemberModel());
         }
         
         return new ModelAndView("redirect:/login"); // 註冊成功後重定向到登入頁面

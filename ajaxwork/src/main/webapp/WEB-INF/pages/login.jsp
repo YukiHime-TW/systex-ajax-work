@@ -56,7 +56,7 @@
             // 隱藏錯誤訊息
             $('#errorMessage').hide();
             $('#errorFormMessage').hide();
-            
+
             if (useAjax) {
                 $('#toggleSubmitType').text('使用表單提交');
                 $('#loginForm').attr('onsubmit', 'submitViaAjax(event)'); // 使用 AJAX 提交
@@ -83,8 +83,11 @@
                 },
                 error: function (xhr) {
                     // 取出錯誤訊息並顯示
-                    let errorMessage = xhr.responseText || '登入失敗，請檢查用戶名或密碼';
-                    $('#errorMessage').text(errorMessage).show();
+                    try {
+                        $('#errorMessage').text(xhr.responseJSON.message).show();
+                    } catch (e) {
+                        $('#errorMessage').text('發生未知錯誤，請稍後再試。').show();
+                    }
                 }
             });
         }
