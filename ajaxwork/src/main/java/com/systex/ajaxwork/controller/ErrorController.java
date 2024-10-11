@@ -9,26 +9,18 @@ import org.springframework.web.servlet.ModelAndView;
 @ControllerAdvice
 public class ErrorController {
 
-    private static final String ERROR_VIEW = "error";
-    private static final String ERROR_MESSAGE_KEY = "errorMessage";
-    private static final String DEFAULT_NOT_FOUND_MESSAGE = "抱歉！您所請求的頁面不存在。";
-    private static final String DEFAULT_ERROR_MESSAGE = "發生了一個錯誤，請稍後再試。";
-
     // 處理 404 錯誤
     @RequestMapping("/error")
     public ModelAndView handleError(Model model) {
-        return createErrorModelAndView(DEFAULT_NOT_FOUND_MESSAGE);
+        return new ModelAndView("error")
+        .addObject("errorMessage", "抱歉！您所請求的頁面不存在。");
     }
 
     // 處理其他例外
     @ExceptionHandler(Exception.class)
     public ModelAndView handleException(Exception e) {
-        return createErrorModelAndView(DEFAULT_ERROR_MESSAGE)
+        return new ModelAndView("error")
+                .addObject("errorMessage", "發生了一個錯誤，請稍後再試。")
                 .addObject("exception", e);
-    }
-
-    private ModelAndView createErrorModelAndView(String message) {
-        return new ModelAndView(ERROR_VIEW)
-                .addObject(ERROR_MESSAGE_KEY, message);
     }
 }
