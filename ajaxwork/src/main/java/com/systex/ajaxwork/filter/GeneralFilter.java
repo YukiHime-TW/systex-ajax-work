@@ -111,7 +111,6 @@ public class GeneralFilter extends OncePerRequestFilter {
             // AJAX 請求返回成功
             if (isAjaxRequest(request)) {
                 response.setStatus(HttpServletResponse.SC_OK);
-                return; // 成功響應，不需要進一步處理
             }
         } else {
             sendErrorResponse(request, response, "用戶名或密碼錯誤");
