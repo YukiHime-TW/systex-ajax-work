@@ -170,7 +170,7 @@ public class GeneralFilter extends OncePerRequestFilter {
             throws IOException {
         // 如果是 AJAX 請求，返回錯誤消息
         if (isAjaxRequest(request)) {
-            response.setCharacterEncoding("utf-8");
+            response.setCharacterEncoding("utf-8"); // 設置字符集
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, message);
             request.removeAttribute("error"); // 對於 AJAX 請求，不需要設置錯誤屬性
         } else {
