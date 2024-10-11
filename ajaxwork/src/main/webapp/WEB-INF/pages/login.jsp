@@ -8,9 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登入</title>
     <!-- 加載 jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-        integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLR5a0bEaEFb3V4lbb5x7ViSg7CrOhT6Xes36dK6b3"
-        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- 加載 Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
@@ -22,11 +20,17 @@
     <jsp:include page="/WEB-INF/pages/navBar.jsp" />
     <div class="container mt-5">
         <h1 id="loginTitle" class="text-center">登入系統 (Form)</h1>
-        <div id="errorMessage" class="alert alert-danger" role="alert" style="display:none;"></div>
         <!-- 選擇提交方式的切換按鈕 -->
         <div class="text-center mb-3">
             <button id="toggleSubmitType" class="btn btn-info">使用 AJAX 提交</button>
         </div>
+        <!-- 顯示錯誤訊息 -->
+        <div id="errorMessage" class="alert alert-danger" role="alert" style="display:none;"></div>
+        <c:if test="${not empty error}">
+            <div id="errorFormMessage" class="alert alert-danger" role="alert">
+                ${error}
+            </div>
+        </c:if>
         <!-- 傳統表單提交 -->
         <form id="loginForm" action="${pageContext.request.contextPath}/login" method="post">
             <div class="mb-3">
@@ -49,6 +53,10 @@
         // 點擊切換提交方式
         $('#toggleSubmitType').click(function () {
             useAjax = !useAjax;
+            // 隱藏錯誤訊息
+            $('#errorMessage').hide();
+            $('#errorFormMessage').hide();
+            
             if (useAjax) {
                 $('#toggleSubmitType').text('使用表單提交');
                 $('#loginForm').attr('onsubmit', 'submitViaAjax(event)'); // 使用 AJAX 提交
@@ -73,12 +81,14 @@
                     // 成功登入，重定向到首頁
                     window.location.href = '${pageContext.request.contextPath}/index.jsp';
                 },
-                error: function (xhr, status, error) {
-                    // 顯示錯誤訊息
-                    $('#errorMessage').text('登入失敗，請檢查用戶名或密碼').show();
+                error: function (xhr) {
+                    // 取出錯誤訊息並顯示
+                    let errorMessage = xhr.responseText || '登入失敗，請檢查用戶名或密碼';
+                    $('#errorMessage').text(errorMessage).show();
                 }
             });
         }
+
     </script>
 </body>
 </html>

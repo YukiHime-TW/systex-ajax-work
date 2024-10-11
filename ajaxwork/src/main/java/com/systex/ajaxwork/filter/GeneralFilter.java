@@ -73,6 +73,8 @@ public class GeneralFilter extends OncePerRequestFilter {
             return;
         }
 
+        System.out.println("error: " + request.getAttribute("error"));
+
         // 繼續處理請求
         filterChain.doFilter(request, response);
     }
@@ -92,6 +94,7 @@ public class GeneralFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             // 找不到用戶，返回錯誤信息並轉發回登入頁
             request.setAttribute("error", "找不到用戶");
+            sendErrorResponse(response, request, "找不到用戶");
             return;
         }
 
@@ -102,49 +105,80 @@ public class GeneralFilter extends OncePerRequestFilter {
                 session = request.getSession(); // 如果 session 不存在，創建一個新的
             }
             session.setAttribute("loggedInUser", member);
-            return;
+
+            // AJAX 請求返回成功
+            if (isAjaxRequest(request)) {
+                response.setStatus(HttpServletResponse.SC_OK);
+                return; // 成功響應，不需要進一步處理
+            }
+
         } else {
             request.setAttribute("error", "用戶名或密碼錯誤");
-            return;
+            sendErrorResponse(response, request, "用戶名或密碼錯誤");
         }
     }
 
     private void handleRegister(HttpServletRequest request, HttpServletResponse response, HttpSession session)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
 
-    MemberModel member;
+        MemberModel member;
 
-    // 獲取用戶名和密碼
-    String username = request.getParameter("username");
-    String password = request.getParameter("password");
-    String confirmPassword = request.getParameter("confirmPassword");
+        // 獲取用戶名和密碼
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        String confirmPassword = request.getParameter("confirmPassword");
 
-    // 檢查密碼是否一致
-    if (!password.equals(confirmPassword)) {
-        // 密碼不一致，返回錯誤信息
-        request.setAttribute("error", "密碼不一致");
-        return;
+        // 檢查密碼是否一致
+        if (!password.equals(confirmPassword)) {
+            // 密碼不一致，返回錯誤信息
+            request.setAttribute("error", "密碼不一致");
+            sendErrorResponse(response, request, "密碼不一致");
+            return;
+        }
+
+        // 檢查用戶名是否已存在
+        try {
+            memberService.checkIfUserExists(username);
+        } catch (Exception e) {
+            // 用戶名已存在，返回錯誤信息
+            request.setAttribute("error", "用戶名已存在");
+            sendErrorResponse(response, request, "用戶名已存在");
+            return;
+        }
+
+        // 創建新用戶
+        member = new MemberModel();
+        member.setUsername(username);
+        member.setPassword(password);
+
+        try {
+            memberService.save(member);
+
+            if (isAjaxRequest(request)) {
+                response.setStatus(HttpServletResponse.SC_OK);
+            }
+
+        } catch (Exception e) {
+            // 保存失敗，返回錯誤信息
+            request.setAttribute("error", "註冊失敗，請重試");
+            sendErrorResponse(response, request, "註冊失敗，請重試");
+        }
     }
 
-    // 檢查用戶名是否已存在
-    try{
-        memberService.checkIfUserExists(username);
-    }catch(Exception e){
-        // 用戶名已存在，返回錯誤信息
-        request.setAttribute("error", "用戶名已存在");
-        return;
+
+    private boolean isAjaxRequest(HttpServletRequest request) {
+        return "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
     }
 
-    // 創建新用戶
-    member = new MemberModel();
-    member.setUsername(username);
-    member.setPassword(password);
-
-    try {
-        memberService.save(member);
-    } catch (Exception e) {
-        // 保存失敗，返回錯誤信息
-        request.setAttribute("error", "註冊失敗，請重試");
+    private void sendErrorResponse(HttpServletResponse response, HttpServletRequest request,
+            String message)
+            throws IOException {
+        // 如果是 AJAX 請求，返回錯誤消息
+        if (isAjaxRequest(request)) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // 設置錯誤狀態碼
+            response.getWriter().write(message); // 返回錯誤消息
+        } else {
+            request.setAttribute("error", message); // 對於非 AJAX 請求，設置錯誤屬性
+        }
     }
-}
 }
