@@ -39,9 +39,6 @@ public class GeneralFilter extends OncePerRequestFilter {
 
         String uri = request.getRequestURI();
 
-        System.out.println("request.getRequestURI(): " + uri);
-        System.out.println("request.getMethod(): " + request.getMethod());
-
         // 如果是登錄請求，處理登入邏輯
         if (uri.endsWith("/login") && request.getMethod().equalsIgnoreCase("POST")) {
             handleLogin(request, response, session);
@@ -79,8 +76,6 @@ public class GeneralFilter extends OncePerRequestFilter {
                 return;
             }
         }
-
-        System.out.println("error: " + request.getAttribute("error"));
 
         // 繼續處理請求
         filterChain.doFilter(request, response);
