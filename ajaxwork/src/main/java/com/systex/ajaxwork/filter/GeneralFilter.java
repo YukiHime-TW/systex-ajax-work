@@ -2,7 +2,6 @@ package com.systex.ajaxwork.filter;
 
 import java.io.IOException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -20,8 +19,11 @@ import jakarta.servlet.http.HttpSession;
 @Component
 public class GeneralFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private MemberService memberService;
+    private final MemberService memberService;
+
+    public GeneralFilter(MemberService memberService) {
+        this.memberService = memberService;
+    }
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -75,6 +77,7 @@ public class GeneralFilter extends OncePerRequestFilter {
                 response.sendRedirect(request.getContextPath() + "/index.jsp");
                 return;
             }
+            
         }
 
         // 繼續處理請求
