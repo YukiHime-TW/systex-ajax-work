@@ -2,8 +2,6 @@ package com.systex.ajaxwork.service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -16,9 +14,7 @@ public class LotteryService {
 
     private HashSet<Integer> excludeNumbers = new HashSet<>();
 
-    private Random random = new Random();
-
-    public List<TreeSet<Integer>> getLottery(LotteryForm form) throws IllegalArgumentException {
+    public ArrayList<TreeSet<Integer>> getLottery(LotteryForm form) throws Exception {
         // 先清空 excludeNumbers
         excludeNumbers.clear();
 
@@ -37,7 +33,7 @@ public class LotteryService {
     private TreeSet<Integer> generateLotteryGroup() {
         TreeSet<Integer> group = new TreeSet<>();
         while (group.size() < 6) {
-            int number = random.nextInt(49) + 1;
+            int number = (int) (Math.random() * 49) + 1;
             if (!group.contains(number) && !excludeNumbers.contains(number)) {
                 group.add(number);
             }
@@ -46,7 +42,7 @@ public class LotteryService {
     }
 
     // 驗證輸入資料
-    public void validate(LotteryForm form) throws IllegalArgumentException {
+    public void validate(LotteryForm form) throws Exception {
         validateGroupCount(form.getGroupCount());
         validateExcludeNumbers(form.getExcludeNumberString());
     }

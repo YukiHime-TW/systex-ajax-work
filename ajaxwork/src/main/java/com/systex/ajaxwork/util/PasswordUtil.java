@@ -4,10 +4,6 @@ import org.mindrot.jbcrypt.BCrypt;
 
 public class PasswordUtil {
 
-    private PasswordUtil() {
-        throw new IllegalStateException("Utility class");
-    }
-
     // 使用 BCrypt 加密密碼
     public static String hashPassword(String password) {
         String salt = BCrypt.gensalt(); // 每次生成新的鹽

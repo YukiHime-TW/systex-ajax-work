@@ -1,5 +1,6 @@
 package com.systex.ajaxwork.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.systex.ajaxwork.error.UserAlreadyExistsException;
@@ -10,11 +11,8 @@ import com.systex.ajaxwork.repository.MemberRepository;
 @Service
 public class MemberService {
 
-    private final MemberRepository memberRepository;
-
-    public MemberService(MemberRepository memberRepository) {
-        this.memberRepository = memberRepository;
-    }
+    @Autowired
+    private MemberRepository memberRepository;
 
     public MemberModel findByUsername(String username) throws UserNotFoundException {
         MemberModel member = memberRepository.findByUsername(username);
