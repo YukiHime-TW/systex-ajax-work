@@ -48,7 +48,7 @@ public class GeneralFilter extends OncePerRequestFilter {
 
         // 如果是註冊請求，處理註冊邏輯
         if (uri.endsWith("/register") && request.getMethod().equalsIgnoreCase("POST")) {
-            handleRegister(request, response, session);
+            handleRegister(request, response);
         }
 
         // 如果是錯誤頁面，繼續處理請求
@@ -85,7 +85,7 @@ public class GeneralFilter extends OncePerRequestFilter {
     }
 
     private void handleLogin(HttpServletRequest request, HttpServletResponse response, HttpSession session)
-            throws ServletException, IOException {
+            throws IOException {
 
         MemberModel member;
 
@@ -120,8 +120,8 @@ public class GeneralFilter extends OncePerRequestFilter {
 
     }
 
-    private void handleRegister(HttpServletRequest request, HttpServletResponse response, HttpSession session)
-            throws ServletException, IOException {
+    private void handleRegister(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
 
         MemberModel member;
 
