@@ -2,6 +2,8 @@ package com.systex.ajaxwork.service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -14,14 +16,16 @@ public class LotteryService {
 
     private HashSet<Integer> excludeNumbers = new HashSet<>();
 
-    public ArrayList<TreeSet<Integer>> getLottery(LotteryForm form) throws Exception {
+    private Random random = new Random();
+
+    public List<TreeSet<Integer>> getLottery(LotteryForm form) throws IllegalArgumentException {
         // 先清空 excludeNumbers
         excludeNumbers.clear();
 
         // 驗證輸入資料
         validate(form);
 
-        ArrayList<TreeSet<Integer>> lotteryGroups = new ArrayList<>();
+        List<TreeSet<Integer>> lotteryGroups = new ArrayList<>();
 
         for (int i = 0; i < form.getGroupCount(); i++) {
             lotteryGroups.add(generateLotteryGroup());
@@ -31,18 +35,19 @@ public class LotteryService {
     }
 
     private TreeSet<Integer> generateLotteryGroup() {
-        TreeSet<Integer> group = new TreeSet<>();
-        while (group.size() < 6) {
-            int number = (int) (Math.random() * 49) + 1;
-            if (!group.contains(number) && !excludeNumbers.contains(number)) {
-                group.add(number);
-            }
+    TreeSet<Integer> group = new TreeSet<>();
+    while (group.size() < 6) {
+        int number = random.nextInt(49) + 1; // Generates numbers from 1 to 49
+        if (!group.contains(number) && !excludeNumbers.contains(number)) {
+            group.add(number);
         }
-        return group;
     }
+    return group;
+}
+
 
     // 驗證輸入資料
-    public void validate(LotteryForm form) throws Exception {
+    public void validate(LotteryForm form) throws IllegalArgumentException {
         validateGroupCount(form.getGroupCount());
         validateExcludeNumbers(form.getExcludeNumberString());
     }

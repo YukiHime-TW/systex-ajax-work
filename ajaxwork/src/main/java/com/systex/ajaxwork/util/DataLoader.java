@@ -1,7 +1,6 @@
 package com.systex.ajaxwork.util;
 
 import org.mindrot.jbcrypt.BCrypt;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +10,6 @@ import com.systex.ajaxwork.repository.MemberRepository;
 @Component
 public class DataLoader implements CommandLineRunner {
 
-    @Autowired
     private final MemberRepository memberRepository;
 
     public DataLoader(MemberRepository memberRepository) {

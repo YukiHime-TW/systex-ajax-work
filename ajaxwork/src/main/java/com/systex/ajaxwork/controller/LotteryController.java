@@ -1,9 +1,9 @@
 package com.systex.ajaxwork.controller;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeSet;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,8 +19,11 @@ import com.systex.ajaxwork.service.LotteryService;
 @RequestMapping("/lottery")
 public class LotteryController {
 
-    @Autowired
-    private LotteryService lotteryService;
+    private final LotteryService lotteryService;
+
+    public LotteryController(LotteryService lotteryService) {
+        this.lotteryService = lotteryService;
+    }
     
     @GetMapping("input")
     public ModelAndView lotteryForm() {
@@ -30,7 +33,7 @@ public class LotteryController {
     @PostMapping("lotteryGenerate")
     public ModelAndView lotteryGenerate(@ModelAttribute LotteryForm form, Model model) {
 
-        ArrayList<TreeSet<Integer>> list = new ArrayList<>();
+        List<TreeSet<Integer>> list = new ArrayList<>();
 
         try{
             list = lotteryService.getLottery(form);
